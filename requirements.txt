@@ -1,0 +1,15 @@
+# PALL has two distinct, version-pinned stacks. Install the one for your stage —
+# do NOT merge them (they pin different transformers/trl/peft versions).
+#
+#   Text pipeline (CPT / SFT / DPO, Unsloth + TRL):
+#       pip install -r training/requirements.txt
+#
+#   Multimodal VLM (SigLIP + LLaVA graft):
+#       pip install -r vlm/requirements.txt
+#
+# On a fresh cloud GPU host, prefer the bootstrap scripts which install torch +
+# flash-attn in the correct order first:
+#       bash training/setup_vast.sh     (A100, text pipeline)
+#       bash vlm/setup.sh               (L40S, VLM)
+
+-r training/requirements.txt

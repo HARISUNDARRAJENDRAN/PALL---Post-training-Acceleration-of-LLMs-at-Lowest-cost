@@ -1,0 +1,87 @@
+# DocSmile Continued Pretraining (CPT) configuration
+# All hyperparameters live here. cpt_train.py reads this file directly.
+
+# ----- Model -----
+model:
+  name: "unsloth/Meta-Llama-3.1-8B"          # base 8B with Unsloth's 4-bit loader
+  load_in_4bit: true                          # NF4 quantization
+  max_seq_length: 2048
+  dtype: null                                 # null = auto (bf16 on A100)
+
+# ----- LoRA / QLoRA -----
+lora:
+  r: 64
+  alpha: 128
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  bias: "none"
+  use_gradient_checkpointing: "unsloth"
+  use_rslora: false
+  random_state: 3407
+
+# ----- Data -----
+data:
+  # Pulled from HF Hub. Created by prepare_data.py.
+  repo: "Harisundar/pall"
+  config: "cpt"                               # the CPT subset of the dataset repo
+  train_split: "train"
+  val_split: "validation"                     # 1% carve-out for perplexity
+  text_field: "text"
+
+# ----- Training -----
+training:
+  output_dir: "./checkpoints/cpt"
+  num_train_epochs: 1
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 8              # effective batch size = 32
+  per_device_eval_batch_size: 4
+
+  learning_rate: 2.0e-4
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+
+  optim: "paged_adamw_8bit"
+  bf16: true
+  fp16: false
+
+  packing: true                               # sequence packing on
+  group_by_length: false                      # incompatible with packing
+  dataloader_num_workers: 4
+  dataset_num_proc: 4
+
+  seed: 3407
+
+# ----- Logging / eval / checkpoint cadence -----
+schedule:
+  logging_steps: 10
+  eval_steps: 500
+  save_steps: 1000
+  save_total_limit: 3                         # keep last 3 checkpoints on disk
+
+# ----- HF Hub push -----
+hub:
+  push_to_hub: true
+  hub_model_id: "Harisundar/pall-llama3.1-8b-cpt"
+  hub_strategy: "every_save"                  # push adapter after each save_steps
+  hub_private_repo: true
+
+# ----- TensorBoard -----
+tensorboard:
+  enabled: true
+  logdir: "./runs/cpt"
+
+# ----- MCQ eval callback (optional, deeper than perplexity) -----
+mcq_eval:
+  enabled: false                              # turn on after baseline measurement
+  path: "../evals/text_only/medmcqa_dental_mcq.jsonl"
+  every_n_steps: 1000
+  max_samples: 100                            # cheap sub-sample during training

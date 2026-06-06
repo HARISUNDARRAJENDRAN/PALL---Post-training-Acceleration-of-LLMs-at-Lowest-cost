@@ -1,0 +1,18 @@
+# DocSmile CPT/SFT training requirements - TRAINING STACK ONLY.
+# Other utility packages are installed separately by setup_vast.sh before this
+# file is processed.
+#
+# Target Vast.ai image:
+#   pytorch/pytorch:2.4.1-cuda12.1-cudnn9-devel
+#
+# Install with --no-deps so pip does not resolve into an incompatible stack.
+
+unsloth==2025.6.1
+unsloth-zoo==2025.6.4
+transformers==4.51.3
+tokenizers==0.21.0
+trl==0.13.0
+peft==0.14.0
+accelerate==1.2.1
+bitsandbytes==0.45.0
+datasets==3.6.0

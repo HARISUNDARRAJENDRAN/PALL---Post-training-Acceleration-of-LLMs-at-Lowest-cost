@@ -1,0 +1,87 @@
+# ======================================================================
+# DocSmile VLM training configuration  —  AWS g6e.2xlarge (1x L40S 48GB)
+# Architecture: LLaVA-style graft = SigLIP vision tower + MLP projector +
+#               your DPO'd Llama-3.1-8B backbone.  Built with HF transformers
+#               (LlavaForConditionalGeneration) + PEFT + TRL.
+# ======================================================================
+
+model:
+  backbone: "Harisundar/pall-llama3.1-8b-cpt-sft-dpo-v3"   # CPT+SFT+DPO Llama 3.1 8B (16GB, on HF)
+  vision_encoder: "google/siglip-so400m-patch14-384"        # default: open, 729 tokens/img
+  # vision_encoder: "google/medsiglip-448"                  # ALT: better medical prior (LICENSE-GATED:
+  #   accept terms at hf.co/google/medsiglip-448 first; 448px, ~1024 tokens/img)
+  projector: mlp2x_gelu          # 2-layer MLP w/ GELU (LLaVA-1.5)
+  image_token: "<image>"          # added as special token; input embeddings resized
+  dtype: bfloat16
+  attn_implementation: flash_attention_2   # falls back to sdpa if flash-attn absent
+  vision_feature_select: default  # use patch tokens (drop CLS)
+
+data:
+  root: "/home/ec2-user/vlm_train"   # contains train/val/test.jsonl + images/
+  train: "train.jsonl"
+  val: "val.jsonl"
+  test: "test.jsonl"
+  # schema: messages(user has N <image> tokens / assistant), images:[relpaths]
+  image_size: 384                 # match vision encoder (448 if MedSigLIP)
+  max_images_per_sample: 6
+
+# ---------------- STAGE 1: vision-language alignment (projector only) ----------------
+stage1_align:
+  trainable: [projector]          # vision + LLM FROZEN -> protects your DPO'd text skills
+  data_filter: single_image       # only len(images)==1 rows (~25k) -> short, clean alignment
+  max_seq_len: 1536
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 8  # effective batch 32
+  learning_rate: 1.0e-3           # high LR is standard for projector pretrain
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+  num_train_epochs: 1
+  gradient_checkpointing: true    # L40S 48GB + bs16 OOMs on 25k single-img rows; gc gives ~10GB headroom
+  bf16: true
+  logging_steps: 20
+  save_steps: 1000
+  output_dir: "/home/ec2-user/vlm/ckpt/stage1_align"
+  # ~1-2 h on L40S
+
+# ---------------- STAGE 2: instruction tuning (LoRA on LLM + projector) ----------------
+stage2_sft:
+  init_from: "/home/ec2-user/vlm/ckpt/stage1_align"   # load aligned projector
+  trainable: [projector, llm_lora]     # vision FROZEN
+  lora:
+    r: 16
+    alpha: 32
+    dropout: 0.05
+    target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+  data_filter: all                # full set incl multi-image code_oral_cls
+  max_seq_len: 5120               # 6 images = 6x729=4374 + text -> need >4374
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8  # effective batch 16
+  learning_rate: 2.0e-5           # LLM LoRA + projector
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+  num_train_epochs: 1             # 1 epoch ~5-10h; train.py resumes from last ckpt if more needed
+  gradient_checkpointing: true
+  bf16: true
+  logging_steps: 20
+  eval_strategy: no
+  save_steps: 500
+  save_total_limit: 3
+  output_dir: "/home/ec2-user/vlm/ckpt/stage2_sft"
+  # ~10-15 h on L40S
+
+# ---------------- STAGE 3: preference optimization (OPTIONAL, deferred) ----------------
+stage3_dpo:
+  enabled: false                  # no multimodal preference pairs yet; construct later
+  notes: "build grounded-vs-hallucinated pairs, then QLoRA/LoRA-DPO via trl DPOTrainer"
+
+# ---------------- evaluation ----------------
+eval:
+  classification_metrics: [balanced_accuracy, macro_f1, auroc]   # imbalance-aware
+  open_qa: llm_judge              # reuse DeepSeek/Gemini pools for clinical correctness
+  hallucination: pope_style
+  modality_use_control: image_shuffle   # accuracy MUST drop when image is randomized
+  split: test.jsonl
+
+# ---------------- expected VRAM (L40S 48GB) ----------------
+# stage1: base16 + vision1 + tiny opt + short-seq acts  ~= 20-24 GB
+# stage2: base16(bf16) + vision1 + lora/opt~1 + acts(gc, bs2, 4k) ~12-16  ~= 30-36 GB  (headroom ok)

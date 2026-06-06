@@ -1,0 +1,95 @@
+{
+  "total_records": 32884,
+  "unique_images": 52461,
+  "images_copied": 0,
+  "images_missing": 0,
+  "dropped_empty": 0,
+  "dropped_exact_dups": 0,
+  "token_image_mismatch": 0,
+  "splits": {
+    "train": 29667,
+    "test": 1577,
+    "val": 1640
+  },
+  "split_source_dist": {
+    "train": {
+      "oral_cancer_photos_pq": 8989,
+      "code_oral_cls": 6804,
+      "oral_cancer_histo": 4627,
+      "textbook_vlm": 2917,
+      "radiograph_caries": 1304,
+      "dental-samples": 980,
+      "smart_oral_photos": 975,
+      "tufts_radiographs": 890,
+      "dentex_quadrant": 614,
+      "dental-radiology": 533,
+      "oral_cancer_photos": 492,
+      "dentex_disease": 361,
+      "dental_jaw_captions": 130,
+      "dentex_enumeration": 46,
+      "dental_image_dataset": 5
+    },
+    "test": {
+      "oral_cancer_photos_pq": 517,
+      "code_oral_cls": 327,
+      "oral_cancer_histo": 250,
+      "textbook_vlm": 149,
+      "radiograph_caries": 64,
+      "tufts_radiographs": 60,
+      "dental-samples": 46,
+      "smart_oral_photos": 46,
+      "dentex_quadrant": 28,
+      "dental-radiology": 27,
+      "oral_cancer_photos": 27,
+      "dentex_disease": 27,
+      "dental_jaw_captions": 8,
+      "dentex_enumeration": 1
+    },
+    "val": {
+      "oral_cancer_photos_pq": 496,
+      "code_oral_cls": 415,
+      "oral_cancer_histo": 250,
+      "textbook_vlm": 155,
+      "radiograph_caries": 63,
+      "dental-samples": 56,
+      "smart_oral_photos": 50,
+      "tufts_radiographs": 48,
+      "dentex_quadrant": 34,
+      "oral_cancer_photos": 25,
+      "dental-radiology": 20,
+      "dentex_disease": 19,
+      "dental_jaw_captions": 6,
+      "dentex_enumeration": 3
+    }
+  },
+  "overall_source_dist": {
+    "oral_cancer_photos_pq": 10002,
+    "code_oral_cls": 7546,
+    "oral_cancer_histo": 5127,
+    "textbook_vlm": 3221,
+    "radiograph_caries": 1431,
+    "dental-samples": 1082,
+    "smart_oral_photos": 1071,
+    "tufts_radiographs": 998,
+    "dentex_quadrant": 676,
+    "dental-radiology": 580,
+    "oral_cancer_photos": 544,
+    "dentex_disease": 407,
+    "dental_jaw_captions": 144,
+    "dentex_enumeration": 50,
+    "dental_image_dataset": 5
+  },
+  "overall_task_subtype_dist": {
+    "classification": 23728,
+    "null": 3801,
+    "detection": 2564,
+    "caption": 1231,
+    "report": 998,
+    "segmentation": 562
+  },
+  "multi_image_records": 7228,
+  "schema": {
+    "images": "list[str] relative to vlm_train/",
+    "messages": "user(<image> tokens)/assistant"
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "summary": {
+    "cpt_total": 406328,
+    "sft_total": 412308,
+    "sft_train": 391693,
+    "sft_val": 20615,
+    "dpo_total": 10721,
+    "dpo_train": 10185,
+    "dpo_val": 536
+  },
+  "cpt": {
+    "per_file": {
+      "dental_cpt_mega.jsonl": 144183,
+      "openalex_dental_cpt.jsonl": 199518,
+      "pmc_dental_cpt.jsonl": 49895,
+      "wikipedia_dental_cpt.jsonl": 11634,
+      "hf_dental_extra_cpt.jsonl": 1098
+    },
+    "per_source_prefix": {
+      "lexicon_shift_fb_articles_sinhala": 135,
+      "lexicon_shift_sinhala_cpt": 234,
+      "ctgov": 15379,
+      "pubmed": 95436,
+      "statpearls": 76,
+      "book": 32923,
+      "openalex": 199518,
+      "pmc": 49895,
+      "wikipedia": 11634,
+      "hf": 1098
+    }
+  },
+  "sft": {
+    "per_file": {
+      "dental_sft_mega.jsonl": 237486,
+      "hf_dental_extra_sft.jsonl": 0,
+      "medqa_dental_sft.jsonl": 0,
+      "medical_instruction_dental_sft.jsonl": 0,
+      "hf_dental_deep_sft.jsonl": 0,
+      "hf_dental_discovery_sft.jsonl": 0,
+      "hf_dental_extra2_sft.jsonl": 54590,
+      "hf_dental_extra3_sft.jsonl": 38856,
+      "forums_govt_sft.jsonl": 27412,
+      "hf_dental_extra4_sft.jsonl": 51925,
+      "textbook_sft_combined.jsonl": 2039
+    },
+    "top_sources": [
+      [
+        "hf:OpenMed/Medical-Reasoning-SFT-Mega",
+        24550
+      ],
+      [
+        "pubmedqa_dental_artificial",
+        20662
+      ],
+      [
+        "hf:ibivibiv/medical_instruct_en",
+        19336
+      ],
+      [
+        "hf:FreedomIntelligence/ApolloCorpus:en",
+        15475
+      ],
+      [
+        "chatdoctor_healthcaremagic_dental",
+        12423
+      ],
+      [
+        "hf:exafluence/Open-MedQA-Nexus",
+        11608
+      ],
+      [
+        "hf:accolade2025/dental-llama2-35k",
+        10197
+      ],
+      [
+        "hf:electricsheepafrica/oral-health-dental-disease",
+        10000
+      ],
+      [
+        "hf:Intelligent-Internet/II-Medical-Reasoning-SFT",
+        9738
+      ],
+      [
+        "hf:ruslanmv/ai-medical-chatbot",
+        9681
+      ],
+      [
+        "hf:AGBonnet/augmented-clinical-notes:conv-summary",
+        8299
+      ],
+      [
+        "hf:FremyCompany/Asclepius-Synthetic-Clinical-Notes-QA-EN",
+        8138
+      ],
+      [
+        "hf:AGBonnet/augmented-clinical-notes:note-summary",
+        7966
+      ],
+      [
+        "wildstash_periodontal_reasoning",
+        7194
+      ],
+      [
+        "hf:Mxode/Chinese-Medical-Instruct-1M",
+        6528
+      ],
+      [
+        "medmcqa_dental",
+        6315
+      ],
+      [
+        "hf:miriad/miriad-4.4M",
+        5995
+      ],
+      [
+        "hf:HuatuoGPT2-SFT-GPT4-140K",
+        4977
+      ],
+      [
+        "hf:BrainHealthAI/MedQA_mutilangual:english",
+        3970
+      ],
+      [
+        "jonathankang_dental_forum",
+        2419
+      ],
+      [
+        "hf:Tuminha/dental-evidence-dataset",
+        1931
+      ],
+      [
+        "hf:FreedomIntelligence/medical-o1-reasoning-SFT:en",
+        1826
+      ],
+      [
+        "hf:naazimsnh02/dentalgemma-instruct",
+        1743
+      ],
+      [
+        "hf:AnonymousSub/MedQuAD_47441_Question_Answer_Pairs",
+        1734
+      ],
+      [
+        "hf:HPAI-BSC/Aloe-Beta-Medical-Collection:default",
+        1633
+      ],
+      [
+        "hf:FreedomIntelligence/ApolloCorpus:zh",
+        1520
+      ],
+      [
+        "hf:saidonepudi8/dental_tc",
+        1149
+      ],
+      [
+        "hf:FreedomIntelligence/medical-o1-reasoning-SFT:zh",
+        1084
+      ],
+      [
+        "hf:lavita/AlpaCare-MedInstruct-52k",
+        1063
+      ],
+      [
+        "hf:FreedomIntelligence/ApolloCorpus:ar",
+        1021
+      ]
+    ]
+  },
+  "dpo": {
+    "per_file": {
+      "rl_dpo.jsonl": 8680,
+      "textbook_dpo_combined.jsonl": 2041
+    },
+    "top_sources": [
+      [
+        "book:__lib_book_Conservative Dentistry_ Cohen_s Pathways of the Pulp by Hargreaves_ KM 09th Ed",
+        564
+      ],
+      [
+        "__lib_book_General Medicine_ Kelley_sTextbook of Internal Medicine by Humes_ H David 4th Ed.md",
+        332
+      ],
+      [
+        "book:__lib_book_Biochemistry_ Lippincott_s Illustrated Biochemistry by Harvey_ A 5th Ed",
+        302
+      ],
+      [
+        "__lib_book_Miscellaneous_ Handbook of Dendritic Cells by Lutz_ Manfred B.md",
+        264
+      ],
+      [
+        "book:__lib_book_Cancer_ Oral Cancer Metastasis by Myers_ Jeffrey",
+        244
+      ],
+      [
+        "book:__lib_book_Biochemistry_ Color Atlas of Biochemistry by J Koolman 2nd Ed",
+        240
+      ],
+      [
+        "book:__lib_book_Biochemistry_ Method in Molecular Biology ELISA Guide Book by Crowther_ J R",
+        220
+      ],
+      [
+        "__lib_book_Oral Surgery_ Oral and Maxillofacial Surgery Vol I by Raymond J Fonseca.md",
+        212
+      ],
+      [
+        "__lib_book_Miscellaneous_ Head_ Face_ and Neck Pain by Mehta_ N R.md",
+        207
+      ],
+      [
+        "__lib_book_Oral Pathology_ Molecular Pathology in Clinical Practice by Leonard_ D G B.md",
+        204
+      ],
+      [
+        "__lib_book_Pedodontics_ Dental Caries the Disease and its Clinical Management Fejerskov _ Kidd 2nd ed 2008.md",
+        195
+      ],
+      [
+        "__lib_book_Pedodontics_ Clinical Psychology by Trull_ T J.md",
+        184
+      ],
+      [
+        "__lib_book_Oral Surgery_ Sedation a guide to Patient Management by Malamed_ Stanley F 5th Ed.md",
+        176
+      ],
+      [
+        "__lib_book_Oral Medicine _ Radiology_ Orofacial Pain and Headache by Sharav_ Yair.md",
+        166
+      ],
+      [
+        "book:__lib_book_Conservative Dentistry_ Digital Restorative Dentistry by Tamimi_ Faleh",
+        159
+      ],
+      [
+        "__lib_book_Oral Medicine _ Radiology_ Radiation Protection by Shapiro_ Jacob.md",
+        137
+      ],
+      [
+        "book:__lib_book_Cancer_ Current Research in Head and Neck Cancer by Bier_ Henning",
+        123
+      ],
+      [
+        "__lib_book_Oral Surgery_ Anesthesia complications in the dental office by Bosack_ Robert C.md",
+        115
+      ],
+      [
+        "__lib_book_Miscellaneous_ Oxford Handbook Of Clinical Dentistry by Mitchell_ David A 6th Ed.md",
+        110
+      ],
+      [
+        "__lib_book_Oral Pathology_ Oral Pathology by Regegi_ J A 7th Ed.md",
+        103
+      ],
+      [
+        "__lib_book_Oral Pathology_ Tissue Stem Cells by Potten_ C S.md",
+        101
+      ],
+      [
+        "__lib_book_Pedodontics_ Behavior Management in Dentistry for Children by Wright_ G Z 2nd Ed.md",
+        101
+      ],
+      [
+        "__lib_book_Conservative Dentistry_ Fundamentals of Operative Dentistry by Summitt_ James B 3rd Ed.md",
+        100
+      ],
+      [
+        "book:__lib_book_Conservative Dentistry_ Clinical Problem Solving in Dentistry by Odell_ Edward W 2nd Ed",
+        99
+      ],
+      [
+        "__lib_book_Oral Pathology_ Atlas of Clinical Oncology Germ Cell Tumors by Raghavan_ D.md",
+        96
+      ],
+      [
+        "__lib_book_Oral Pathology_ Cysts of the Oral and Maxillofacial Regions by Shear_ M 4th Ed.md",
+        88
+      ],
+      [
+        "__lib_book_Oral Pathology_ Histopathology Specimens by Allen_ Derek C.md",
+        88
+      ],
+      [
+        "__lib_book_Pharmacology_ Basic Principles of Pharmacology with Dental Hygiene Applications by Pickett_ F A.md",
+        87
+      ],
+      [
+        "__lib_book_Oral Pathology_ Pathology of head and neck by Cardesa_ Antonio.md",
+        85
+      ],
+      [
+        "__lib_book_Miscellaneous_ Integration of Medical And Dental Care and Patient Data by Powell_ V.md",
+        83
+      ]
+    ]
+  }
+}

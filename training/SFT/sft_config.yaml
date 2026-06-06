@@ -1,0 +1,95 @@
+# DocSmile Supervised Fine-Tuning (SFT) configuration.
+# Optimized for a single Vast.ai A100 40GB using Unsloth + QLoRA.
+
+model:
+  # Base model plus optional CPT adapter below.
+  name: "unsloth/Meta-Llama-3.1-8B"
+  load_in_4bit: true
+  max_seq_length: 1024
+  dtype: null
+
+lora:
+  r: 64
+  alpha: 128
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  bias: "none"
+  # A100-40GB has headroom; disabling checkpointing trades VRAM for speed.
+  use_gradient_checkpointing: false
+  use_rslora: false
+  random_state: 3407
+
+data:
+  repo: "Harisundar/pall"
+  config: "sft"
+  train_split: "train"
+  val_split: "validation"
+  question_field: "question"
+  answer_field: "answer"
+  source_field: "source"
+  topic_field: "topic"
+  text_field: "text"
+  system_prompt: >-
+    You are DocSmile, a careful dental clinical assistant. Answer with
+    accurate dental reasoning, practical next steps, and clear safety limits.
+
+training:
+  output_dir: "/workspace/checkpoints/sft"
+  num_train_epochs: 2
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 4
+  per_device_eval_batch_size: 8
+
+  learning_rate: 1.0e-4
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+
+  optim: "paged_adamw_8bit"
+  bf16: true
+  fp16: false
+
+  # SFT uses separate examples to avoid answer-boundary contamination.
+  packing: false
+  group_by_length: true
+  dataloader_num_workers: 8
+  dataset_num_proc: 8
+
+  seed: 3407
+
+schedule:
+  logging_steps: 10
+  eval_steps: 500
+  save_steps: 1000
+  save_total_limit: 3
+
+hub:
+  push_to_hub: true
+  hub_model_id: "Harisundar/pall-llama3.1-8b-sft"
+  hub_strategy: "every_save"
+  hub_private_repo: true
+
+tensorboard:
+  enabled: true
+  logdir: "/workspace/runs/sft"
+
+# Optional starting adapter from the completed CPT phase.
+# Leave enabled=false to train SFT LoRA directly from the base model.
+resume_adapter:
+  enabled: true
+  repo: "/workspace/cpt_adapter_trainable"
+  load_method: "unsloth"
+
+mcq_eval:
+  enabled: false
+  path: "../evals/text_only/medmcqa_dental_mcq.jsonl"
+  every_n_steps: 1000
+  max_samples: 100

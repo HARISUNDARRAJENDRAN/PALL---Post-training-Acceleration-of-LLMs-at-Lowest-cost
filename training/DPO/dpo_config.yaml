@@ -1,0 +1,81 @@
+# DocSmile DPO configuration.
+# Continues from SFT adapter; trains LoRA further with DPO objective.
+# A100-40GB target.
+
+model:
+  name: "unsloth/Meta-Llama-3.1-8B"
+  load_in_4bit: true
+  max_seq_length: 2048
+  dtype: null
+
+# DPO loads the SFT LoRA as starting weights and continues training the same
+# adapter (policy). The reference logprobs are computed by disabling the
+# adapter on-the-fly inside DPOTrainer.
+resume_adapter:
+  enabled: true
+  repo: "/workspace/sft_adapter_trainable"
+
+lora:
+  # Must match the SFT adapter so we keep training the same params.
+  r: 64
+  alpha: 128
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  bias: "none"
+  use_gradient_checkpointing: "unsloth"
+  use_rslora: false
+  random_state: 3407
+
+data:
+  # Curated DPO pairs in conversational format with DocSmile system prompt.
+  train_path: "/workspace/cpt_prepared/curated_dpo_merged.jsonl"
+  val_fraction: 0.02
+
+training:
+  output_dir: "/workspace/checkpoints/dpo"
+  num_train_epochs: 1
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4
+
+  learning_rate: 5.0e-6
+  warmup_ratio: 0.05
+  lr_scheduler_type: "cosine"
+  weight_decay: 0.0
+  max_grad_norm: 1.0
+  optim: "paged_adamw_8bit"
+  bf16: true
+  fp16: false
+
+  beta: 0.1
+  loss_type: "sigmoid"
+  max_length: 1024
+  max_prompt_length: 512
+  precompute_ref_log_probs: false
+
+  dataloader_num_workers: 4
+  dataset_num_proc: 4
+  seed: 3407
+
+schedule:
+  logging_steps: 10
+  eval_steps: 250
+  save_steps: 250
+  save_total_limit: 3
+
+hub:
+  push_to_hub: true
+  hub_model_id: "Harisundar/pall-llama3.1-8b-dpo"
+  hub_strategy: "every_save"
+  hub_private_repo: true
+
+tensorboard:
+  enabled: true
+  logdir: "/workspace/runs/dpo"

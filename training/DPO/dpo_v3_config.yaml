@@ -1,0 +1,84 @@
+# DocSmile DPO v3 configuration.
+# Trains a FRESH LoRA on top of the FROZEN CPT+SFT *merged* model.
+# Reference logprobs = merged model (adapter disabled) -> correct KL anchor.
+# A100-40GB target.
+
+model:
+  # Full bf16 merged CPT+SFT model on disk.
+  name: "/workspace/merged_models/pall-llama3.1-8b-cpt-sft-v2-merged-bf16"
+  merged_base: true            # load full model + attach fresh LoRA
+  load_in_4bit: true           # QLoRA DPO (memory-safe on 40GB)
+  max_seq_length: 2048         # MUST match SFT context window
+  dtype: null
+
+# Not used when merged_base=true (kept for clarity).
+resume_adapter:
+  enabled: false
+
+lora:
+  # Fresh adapter; same shape as the SFT adapter.
+  r: 64
+  alpha: 128
+  dropout: 0.0
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  bias: "none"
+  use_gradient_checkpointing: "unsloth"
+  use_rslora: false
+  random_state: 3407
+
+data:
+  train_path: "/workspace/DocSmile/FINAL/dental_dpo_v2_train.jsonl"
+  val_fraction: 0.02
+  # EXACT same system prompt as SFT (format consistency).
+  system_prompt: >-
+    You are DocSmile, a careful dental clinical assistant. Answer with
+    accurate dental reasoning, practical next steps, and clear safety limits.
+
+training:
+  output_dir: "/workspace/checkpoints/dpo_v3"
+  num_train_epochs: 1
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4        # effective batch 16
+
+  learning_rate: 2.0e-6                 # top of the recommended 5e-7..2e-6 band
+  warmup_ratio: 0.05
+  lr_scheduler_type: "cosine"
+  weight_decay: 0.0
+  max_grad_norm: 1.0
+  optim: "paged_adamw_8bit"
+  bf16: true
+  fp16: false
+
+  beta: 0.1
+  loss_type: "sigmoid"
+  max_length: 1024                      # data max ~358 tok -> zero truncation
+  max_prompt_length: 512                # data max prompt ~156 tok
+  precompute_ref_log_probs: false
+
+  dataloader_num_workers: 4
+  dataset_num_proc: 4
+  seed: 3407
+
+schedule:
+  logging_steps: 10
+  eval_steps: 250
+  save_steps: 250
+  save_total_limit: 3
+
+hub:
+  push_to_hub: false
+  hub_model_id: "Harisundar/pall-llama3.1-8b-dpo-v3"
+  hub_strategy: "every_save"
+  hub_private_repo: true
+
+tensorboard:
+  enabled: true
+  logdir: "/workspace/runs/dpo_v3"

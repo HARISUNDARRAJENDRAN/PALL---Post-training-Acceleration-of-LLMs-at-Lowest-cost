@@ -1,0 +1,76 @@
+# ==========================================================================
+# PALL .gitignore
+# Repo holds source, configs, and small metadata only. Everything large or
+# sensitive lives outside git (HF Hub for data/checkpoints, .env for keys).
+# ==========================================================================
+
+# --- Secrets ---
+.env
+*.env
+!*.env.example
+
+# --- Downloaded datasets (pulled from HF by data/download.py) ---
+# Keep data/README.md, data/download.py, and data/manifests/ tracked.
+/data/cpt/
+/data/sft/
+/data/dpo/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Virtual envs ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- IDE / editor ---
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Claude / agent state ---
+.claude/
+
+# --- Training artifacts (checkpoints, logs live on disk / HF, not git) ---
+checkpoints/
+runs/
+tensorboard/
+wandb/
+*.ckpt
+*.pt
+*.bin
+*.safetensors
+*.log
+
+# --- Large / binary ---
+*.pdf
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.xlsx
+*.xls
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.mov
+
+# --- HuggingFace caches ---
+.hf_cache/
+hf_cache/
+.cache/
