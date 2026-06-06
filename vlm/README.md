@@ -1,6 +1,6 @@
 # DocSmile VLM — training runbook (AWS g6e.2xlarge / L40S 48 GB)
 
-Turns the text-only `pall-llama3.1-8b-cpt-sft-dpo-v3` into a multimodal dental VLM by
+Turns the text-only `Harisundar/PALL-Text` into a multimodal dental VLM by
 grafting a SigLIP vision tower + MLP projector (LLaVA-style), then 2-stage training on
 `IMAGES/vlm_train/` (32,884 records, 52,461 images).
 

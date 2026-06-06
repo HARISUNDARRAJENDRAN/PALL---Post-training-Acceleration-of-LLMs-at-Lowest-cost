@@ -153,9 +153,9 @@ from transformers import LlavaForConditionalGeneration, AutoProcessor
 from PIL import Image
 
 model = LlavaForConditionalGeneration.from_pretrained(
-    "Harisundar/docsmile-vlm-v1", dtype=torch.bfloat16, device_map="cuda"
+    "Harisundar/PALL-VLM", dtype=torch.bfloat16, device_map="cuda"
 )
-processor = AutoProcessor.from_pretrained("Harisundar/docsmile-vlm-v1")
+processor = AutoProcessor.from_pretrained("Harisundar/PALL-VLM")
 
 image = Image.open("dental_image.jpg").convert("RGB")
 text = processor.tokenizer.apply_chat_template(

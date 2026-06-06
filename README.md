@@ -6,8 +6,8 @@
 
 **Turn Llama-3.1-8B into a dental specialist on a single A100 for ~\$20 — then make it see.**
 
-[![Model](https://img.shields.io/badge/HF_Model-Llama--3.1--8B_dental-yellow)](https://huggingface.co/Harisundar/pall-llama3.1-8b-cpt-sft-dpo-v3)
-[![VLM](https://img.shields.io/badge/HF_VLM-DocSmile-orange)](https://huggingface.co/Harisundar/docsmile-vlm-v1)
+[![Model](https://img.shields.io/badge/HF_Model-PALL--Text-yellow)](https://huggingface.co/Harisundar/PALL-Text)
+[![VLM](https://img.shields.io/badge/HF_VLM-PALL--VLM-orange)](https://huggingface.co/Harisundar/PALL-VLM)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](#license)
 [![GPU](https://img.shields.io/badge/GPU-1×_A100_40GB-76B900?logo=nvidia&logoColor=white)](#the-efficiency-stack)
 [![Stack](https://img.shields.io/badge/QLoRA_+_Unsloth_+_FA2-purple)](#the-efficiency-stack)
@@ -54,8 +54,8 @@ flowchart LR
     A["Llama-3.1-8B<br/>(NF4 4-bit)"] -->|"CPT<br/>175M tokens"| B["+ CPT adapter"]
     B -->|"SFT<br/>~392K Q&A pairs"| C["+ SFT adapter"]
     C -->|"DPO<br/>~10K pref pairs"| D["+ DPO adapter"]
-    D -->|"merge"| E["DocSmile<br/>text LLM"]
-    E -->|"graft SigLIP<br/>+ projector"| F["DocSmile<br/>VLM"]
+    D -->|"merge"| E["PALL<br/>text LLM"]
+    E -->|"graft SigLIP<br/>+ projector"| F["PALL<br/>VLM"]
     style A fill:#1e293b,color:#fff
     style E fill:#ca8a04,color:#fff
     style F fill:#ea580c,color:#fff
@@ -187,8 +187,8 @@ Full runbook: [`vlm/README.md`](vlm/README.md)
 | Artifact | Repo |
 |---|---|
 | Datasets (cpt/sft/dpo subsets) | [`Harisundar/pall`](https://huggingface.co/datasets/Harisundar/pall) *(private → public after deployment)* |
-| Text model | [`Harisundar/pall-llama3.1-8b-cpt-sft-dpo-v3`](https://huggingface.co/Harisundar/pall-llama3.1-8b-cpt-sft-dpo-v3) |
-| VLM | [`Harisundar/docsmile-vlm-v1`](https://huggingface.co/Harisundar/docsmile-vlm-v1) |
+| Text model | [`Harisundar/PALL-Text`](https://huggingface.co/Harisundar/PALL-Text) — fully-merged dental Llama-3.1-8B (CPT+SFT+DPO) |
+| VLM | [`Harisundar/PALL-VLM`](https://huggingface.co/Harisundar/PALL-VLM) — LLaVA-style dental vision-language model |
 
 ---
 

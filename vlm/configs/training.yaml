@@ -6,7 +6,7 @@
 # ======================================================================
 
 model:
-  backbone: "Harisundar/pall-llama3.1-8b-cpt-sft-dpo-v3"   # CPT+SFT+DPO Llama 3.1 8B (16GB, on HF)
+  backbone: "Harisundar/PALL-Text"   # CPT+SFT+DPO Llama 3.1 8B (16GB, on HF)
   vision_encoder: "google/siglip-so400m-patch14-384"        # default: open, 729 tokens/img
   # vision_encoder: "google/medsiglip-448"                  # ALT: better medical prior (LICENSE-GATED:
   #   accept terms at hf.co/google/medsiglip-448 first; 448px, ~1024 tokens/img)

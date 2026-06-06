@@ -28,7 +28,7 @@ LLAMA3_CHAT_TEMPLATE = (
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--backbone", default="Harisundar/pall-llama3.1-8b-cpt-sft-dpo-v3")
+    ap.add_argument("--backbone", default="Harisundar/PALL-Text")
     ap.add_argument("--vision", default="google/siglip-so400m-patch14-384")
     ap.add_argument("--out", default="/home/ec2-user/vlm/base_vlm")
     ap.add_argument("--image_token", default="<image>")

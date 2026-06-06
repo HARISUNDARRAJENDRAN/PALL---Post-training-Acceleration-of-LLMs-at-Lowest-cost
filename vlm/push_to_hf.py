@@ -7,7 +7,7 @@ import os, sys, time, traceback
 from huggingface_hub import HfApi, whoami
 
 OUT = "/home/ec2-user/vlm/docsmile_vlm_merged"
-REPO = "Harisundar/docsmile-vlm-v1"
+REPO = "Harisundar/PALL-VLM"
 TOKEN_FILE = os.path.expanduser("~/.hf_token")
 
 LOG = "/home/ec2-user/push.log"

@@ -37,7 +37,7 @@ cp .env.example .env
 # Then:
 pip install huggingface-hub
 python prepare_data.py --dry-run     # sanity-check the plan
-python prepare_data.py               # uploads to https://huggingface.co/datasets/Harisundar/docsmile-dental
+python prepare_data.py               # uploads to https://huggingface.co/datasets/Harisundar/pall
 ```
 
 This is a one-time step. After it's done, Vast.ai instances pull the data
