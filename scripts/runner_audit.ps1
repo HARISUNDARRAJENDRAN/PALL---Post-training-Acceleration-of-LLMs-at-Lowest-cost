@@ -3,6 +3,7 @@ param(
     [string]$WorkRoot = "C:\PALL_DATA"
 )
 
+# Audit revision 2: tolerate endpoints that reject HEAD and retrigger the controlled workflow.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
@@ -30,24 +31,39 @@ function Get-CommandVersion {
 function Test-Endpoint {
     param([Parameter(Mandatory = $true)][string]$Uri)
 
-    try {
-        $response = Invoke-WebRequest -Uri $Uri -Method Head -TimeoutSec 20 -UseBasicParsing
-        return [ordered]@{
-            reachable = $true
-            status = [int]$response.StatusCode
-            error = $null
+    foreach ($method in @("Head", "Get")) {
+        try {
+            $params = @{
+                Uri = $Uri
+                Method = $method
+                TimeoutSec = 20
+                UseBasicParsing = $true
+            }
+            if ($method -eq "Get") {
+                $params["Headers"] = @{ Range = "bytes=0-0" }
+            }
+            $response = Invoke-WebRequest @params
+            return [ordered]@{
+                reachable = $true
+                status = [int]$response.StatusCode
+                method = $method
+                error = $null
+            }
+        }
+        catch {
+            $lastError = $_
         }
     }
-    catch {
-        $status = $null
-        if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
-            $status = [int]$_.Exception.Response.StatusCode
-        }
-        return [ordered]@{
-            reachable = $false
-            status = $status
-            error = $_.Exception.Message
-        }
+
+    $status = $null
+    if ($lastError.Exception.Response -and $lastError.Exception.Response.StatusCode) {
+        $status = [int]$lastError.Exception.Response.StatusCode
+    }
+    return [ordered]@{
+        reachable = $false
+        status = $status
+        method = $null
+        error = $lastError.Exception.Message
     }
 }
 
@@ -57,14 +73,34 @@ function Get-EnvPresence {
     return -not [string]::IsNullOrWhiteSpace($value)
 }
 
+function Get-SafeEnv {
+    param([Parameter(Mandatory = $true)][string]$Name)
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    if ($null -eq $value) { return "" }
+    return $value
+}
+
+$githubRepository = Get-SafeEnv -Name "GITHUB_REPOSITORY"
+$githubRef = Get-SafeEnv -Name "GITHUB_REF"
+$githubSha = Get-SafeEnv -Name "GITHUB_SHA"
+$githubActor = Get-SafeEnv -Name "GITHUB_ACTOR"
+$githubEventName = Get-SafeEnv -Name "GITHUB_EVENT_NAME"
+$runnerName = Get-SafeEnv -Name "RUNNER_NAME"
+$runnerOS = Get-SafeEnv -Name "RUNNER_OS"
+$runnerArch = Get-SafeEnv -Name "RUNNER_ARCH"
+$workspace = Get-SafeEnv -Name "GITHUB_WORKSPACE"
+if ([string]::IsNullOrWhiteSpace($workspace)) {
+    $workspace = (Get-Location).Path
+}
+
 Write-Host "=== PALL self-hosted runner audit ==="
-Write-Host "Repository: $env:GITHUB_REPOSITORY"
-Write-Host "Ref:        $env:GITHUB_REF"
-Write-Host "Runner:     $env:RUNNER_NAME"
-Write-Host "Workspace:  $env:GITHUB_WORKSPACE"
+Write-Host "Repository: $githubRepository"
+Write-Host "Ref:        $githubRef"
+Write-Host "Runner:     $runnerName"
+Write-Host "Workspace:  $workspace"
 
 New-Item -ItemType Directory -Path $WorkRoot -Force | Out-Null
-$reportDir = Join-Path $env:GITHUB_WORKSPACE "reports\runner-audit"
+$reportDir = Join-Path $workspace "reports\runner-audit"
 New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
 
 $os = Get-CimInstance Win32_OperatingSystem
@@ -99,19 +135,20 @@ catch {
 
 $report = [ordered]@{
     timestamp_utc = [DateTime]::UtcNow.ToString("o")
+    audit_revision = 2
     github = [ordered]@{
-        repository = $env:GITHUB_REPOSITORY
-        ref = $env:GITHUB_REF
-        sha = $env:GITHUB_SHA
-        actor = $env:GITHUB_ACTOR
-        event_name = $env:GITHUB_EVENT_NAME
-        runner_name = $env:RUNNER_NAME
-        runner_os = $env:RUNNER_OS
-        runner_arch = $env:RUNNER_ARCH
-        workspace = $env:GITHUB_WORKSPACE
+        repository = $githubRepository
+        ref = $githubRef
+        sha = $githubSha
+        actor = $githubActor
+        event_name = $githubEventName
+        runner_name = $runnerName
+        runner_os = $runnerOS
+        runner_arch = $runnerArch
+        workspace = $workspace
     }
     system = [ordered]@{
-        computer_name = $env:COMPUTERNAME
+        computer_name = Get-SafeEnv -Name "COMPUTERNAME"
         os_caption = $os.Caption
         os_version = $os.Version
         os_build = $os.BuildNumber
