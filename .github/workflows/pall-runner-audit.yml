@@ -2,6 +2,18 @@ name: PALL runner audit
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - agent/reasoning-sft-rebuild
+    paths:
+      - ".github/workflows/pall-runner-audit.yml"
+      - "scripts/runner_audit.ps1"
+
+permissions:
+  contents: read
+
+env:
+  PALL_WORK_ROOT: C:\PALL_DATA
 
 jobs:
   audit:
@@ -10,16 +22,22 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout
+      - name: Checkout controlled branch
         uses: actions/checkout@v4
+        with:
+          ref: agent/reasoning-sft-rebuild
+          persist-credentials: false
 
       - name: Run environment audit
         shell: pwsh
         run: |
-          ./scripts/runner_audit.ps1
+          ./scripts/runner_audit.ps1 -WorkRoot $env:PALL_WORK_ROOT
 
       - name: Upload audit report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pall-runner-audit
+          name: pall-runner-audit-${{ github.run_id }}
           path: reports/runner-audit/runner_audit.json
+          if-no-files-found: warn
+          retention-days: 7
