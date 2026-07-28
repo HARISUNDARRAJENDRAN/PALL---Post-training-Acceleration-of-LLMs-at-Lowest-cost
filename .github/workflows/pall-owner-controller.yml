@@ -1,0 +1,79 @@
+name: PALL owner controller
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: pall-owner-controller
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: >-
+      github.event.issue.user.login == github.repository_owner &&
+      startsWith(github.event.issue.title, '[PALL-RUNNER] ')
+    runs-on: [self-hosted, Windows, X64, pall, dataset-rebuild]
+    timeout-minutes: 360
+    env:
+      PALL_WORK_ROOT: C:\PALL_DATA
+      CONTROLLER_ISSUE: ${{ github.event.issue.number }}
+      CONTROLLER_TITLE: ${{ github.event.issue.title }}
+    steps:
+      - name: Checkout controlled implementation branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/reasoning-sft-rebuild
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Execute allow-listed command
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $command = $env:CONTROLLER_TITLE.Substring('[PALL-RUNNER] '.Length).Trim().ToLowerInvariant()
+          switch ($command) {
+            'audit' {
+              ./scripts/runner_audit.ps1 -WorkRoot $env:PALL_WORK_ROOT
+              break
+            }
+            default {
+              throw "Unsupported PALL runner command: $command"
+            }
+          }
+
+      - name: Commit sanitized reports
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          git config user.name 'pall-runner-bot'
+          git config user.email 'pall-runner-bot@users.noreply.github.com'
+          if (Test-Path 'reports') {
+            git add reports
+            git diff --cached --quiet
+            if ($LASTEXITCODE -ne 0) {
+              git commit -m "chore: runner report for issue $env:CONTROLLER_ISSUE [skip ci]"
+              git push origin HEAD:agent/reasoning-sft-rebuild
+            }
+          }
+
+      - name: Close successful command issue
+        if: success()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue close $env:CONTROLLER_ISSUE --repo $env:GITHUB_REPOSITORY --comment 'Runner command completed successfully.'
+
+      - name: Comment on failed command
+        if: failure()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment $env:CONTROLLER_ISSUE --repo $env:GITHUB_REPOSITORY --body 'Runner command failed. See the Actions job logs; no completion was claimed.'
