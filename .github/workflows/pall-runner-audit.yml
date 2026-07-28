@@ -1,0 +1,25 @@
+name: PALL runner audit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    if: github.ref == 'refs/heads/agent/reasoning-sft-rebuild'
+    runs-on: [self-hosted, Windows, X64, pall, dataset-rebuild]
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run environment audit
+        shell: pwsh
+        run: |
+          ./scripts/runner_audit.ps1
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pall-runner-audit
+          path: reports/runner-audit/runner_audit.json
